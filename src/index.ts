@@ -1,0 +1,10 @@
+import express from "express";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { server } from "./mcpServer.js";
+const app = express();
+const PORT = parseInt(process.env.PORT || "8080");
+let t;
+app.get("/sse", async (_, r) => { t = new SSEServerTransport("/message", r); await server.connect(t); });
+app.post("/message", async (req, res) => { if (t) await t.handlePostMessage(req, res); });
+app.get("/health", (_, r) => r.json({ status: "ok" }));
+app.listen(PORT, () => console.log("enterprise-mcp-boilerplate running on port " + PORT));
